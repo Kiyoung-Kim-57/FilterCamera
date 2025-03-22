@@ -7,8 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F62372B2D8D1912003BD436 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F62372A2D8D1912003BD436 /* SnapKit */; };
+		6F232A402D8EF7FA008BDDAF /* SnapKit-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 6F232A3F2D8EF7FA008BDDAF /* SnapKit-Dynamic */; };
+		6F232A442D8EF830008BDDAF /* SnapKit-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 6F232A3F2D8EF7FA008BDDAF /* SnapKit-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6F232A452D8EF830008BDDAF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6F232A442D8EF830008BDDAF /* SnapKit-Dynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6F6234E62D8BF591003BD436 /* CameraFilter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraFilter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,17 +55,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F62372B2D8D1912003BD436 /* SnapKit in Frameworks */,
+				6F232A402D8EF7FA008BDDAF /* SnapKit-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F232A412D8EF82A008BDDAF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6F6234DD2D8BF591003BD436 = {
 			isa = PBXGroup;
 			children = (
 				6F6234E82D8BF591003BD436 /* CameraFilter */,
+				6F232A412D8EF82A008BDDAF /* Frameworks */,
 				6F6234E72D8BF591003BD436 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,6 +96,7 @@
 				6F6234E22D8BF591003BD436 /* Sources */,
 				6F6234E32D8BF591003BD436 /* Frameworks */,
 				6F6234E42D8BF591003BD436 /* Resources */,
+				6F232A452D8EF830008BDDAF /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -83,7 +107,7 @@
 			);
 			name = CameraFilter;
 			packageProductDependencies = (
-				6F62372A2D8D1912003BD436 /* SnapKit */,
+				6F232A3F2D8EF7FA008BDDAF /* SnapKit-Dynamic */,
 			);
 			productName = CameraFilter;
 			productReference = 6F6234E62D8BF591003BD436 /* CameraFilter.app */;
@@ -114,7 +138,7 @@
 			mainGroup = 6F6234DD2D8BF591003BD436;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				6F6237292D8D1912003BD436 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				6F232A3E2D8EF7FA008BDDAF /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6F6234E72D8BF591003BD436 /* Products */;
@@ -348,7 +372,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6F6237292D8D1912003BD436 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+		6F232A3E2D8EF7FA008BDDAF /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
 			requirement = {
@@ -359,10 +383,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6F62372A2D8D1912003BD436 /* SnapKit */ = {
+		6F232A3F2D8EF7FA008BDDAF /* SnapKit-Dynamic */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6F6237292D8D1912003BD436 /* XCRemoteSwiftPackageReference "SnapKit" */;
-			productName = SnapKit;
+			package = 6F232A3E2D8EF7FA008BDDAF /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = "SnapKit-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
