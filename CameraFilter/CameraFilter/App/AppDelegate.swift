@@ -13,7 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // 앱이 시작될 때 카메라 권한을 요청함
+        AppPermissionManager.requestCameraPermission()
+        
+        // 앱이 시작될 때 음성 권한을 요청함
+        AppPermissionManager.requestMicrophonePermission()
         return true
     }
 
