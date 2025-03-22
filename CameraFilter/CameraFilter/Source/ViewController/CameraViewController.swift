@@ -1,11 +1,13 @@
 import AVFoundation
 import UIKit
 import Combine
+import SnapKit
 
 final class CameraViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
   
     private let photoRoomBottomView: CameraBottomView
+    private let cameraView = UIView()
 
     init(cameraBottomView: CameraBottomView) {
         self.photoRoomBottomView = cameraBottomView
@@ -29,7 +31,7 @@ final class CameraViewController: UIViewController {
     }
     
     public func addViews() {
-        [photoRoomBottomView].forEach {
+        [photoRoomBottomView, cameraView].forEach {
             view.addSubview($0)
         }
     }
@@ -40,9 +42,16 @@ final class CameraViewController: UIViewController {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(Constants.bottomViewHeight)
         }
+        
+        cameraView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(photoRoomBottomView.snp.top)
+        }
     }
     
     public func configureUI() {
+        cameraView.backgroundColor = .gray
     }
     
     public func bindInput() {
@@ -63,7 +72,7 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
 extension CameraViewController {
     private enum Constants {
-        static let bottomViewHeight: CGFloat = 80
+        static let bottomViewHeight: CGFloat = 100
         static let navigationHeight: CGFloat = 48
         static let circleButtonSize: CGSize = CGSize(width: 52, height: 52)
         static let micButtonBottomSpacing: CGFloat = -4
