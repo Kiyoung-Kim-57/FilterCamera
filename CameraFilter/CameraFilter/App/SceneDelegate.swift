@@ -15,10 +15,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
+        let cameraManager = CameraManager()
+        let imageFilter = ImageFilter()
         let cameraBottomView = CameraBottomView()
+        let cameraViewModel = CameraViewModel(cameraManager: cameraManager, imageFilter: imageFilter)
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CameraViewController(cameraBottomView: cameraBottomView)
+        window?.rootViewController = CameraViewController(
+            cameraBottomView: cameraBottomView,
+            cameraViewModel: cameraViewModel
+        )
         window?.makeKeyAndVisible()
     }
 }

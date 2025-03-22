@@ -6,11 +6,15 @@ import SnapKit
 final class CameraViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
   
-    private let photoRoomBottomView: CameraBottomView
+    private let cameraBottomView: CameraBottomView
+    private let cameraViewModel: CameraViewModel
     private let cameraView = UIView()
+    
+    private let input = PassthroughSubject<CameraViewModel.Input, Never>()
 
-    init(cameraBottomView: CameraBottomView) {
-        self.photoRoomBottomView = cameraBottomView
+    init(cameraBottomView: CameraBottomView, cameraViewModel: CameraViewModel) {
+        self.cameraBottomView = cameraBottomView
+        self.cameraViewModel = cameraViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -21,23 +25,27 @@ final class CameraViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        navigationController?.setNavigationBarHidden(true, animated: false)
         
         addViews()
         setupConstraints()
         configureUI()
         bindInput()
         bindOutput()
+        viewDidLoadInput()
+    }
+    
+    private func viewDidLoadInput() {
+        input.send(.viewDidLoad(cameraView))
     }
     
     public func addViews() {
-        [photoRoomBottomView, cameraView].forEach {
+        [cameraBottomView, cameraView].forEach {
             view.addSubview($0)
         }
     }
     
     public func setupConstraints() {
-        photoRoomBottomView.snp.makeConstraints {
+        cameraBottomView.snp.makeConstraints {
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(Constants.bottomViewHeight)
@@ -46,22 +54,35 @@ final class CameraViewController: UIViewController {
         cameraView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.bottom.equalTo(photoRoomBottomView.snp.top)
+            $0.bottom.equalTo(cameraBottomView.snp.top)
         }
     }
     
     public func configureUI() {
-        cameraView.backgroundColor = .gray
+        cameraView.backgroundColor = .clear
     }
     
     public func bindInput() {
-        photoRoomBottomView.cameraButtonTapped
+        cameraBottomView.cameraButtonTapped
             .sink { [weak self] _ in
             }
             .store(in: &cancellables)
     }
     
     public func bindOutput() {
+        let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
+        
+        output
+            .sink { [weak self] in
+                guard let self else { return }
+                switch $0 {
+                case .cameraImage(let image):
+                    debugPrint("for camera image")
+                case .filterState(let filter):
+                    debugPrint("for filter state")
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
