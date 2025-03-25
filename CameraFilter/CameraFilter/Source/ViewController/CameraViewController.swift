@@ -8,13 +8,15 @@ final class CameraViewController: UIViewController {
   
     private let cameraBottomView: CameraBottomView
     private let cameraViewModel: CameraViewModel
+    private let photoViewModel: PhotoViewModel
     private let cameraView = UIView()
     
     private let input = PassthroughSubject<CameraViewModel.Input, Never>()
 
-    init(cameraBottomView: CameraBottomView, cameraViewModel: CameraViewModel) {
+    init(cameraBottomView: CameraBottomView, cameraViewModel: CameraViewModel, photoViewModel: PhotoViewModel) {
         self.cameraBottomView = cameraBottomView
         self.cameraViewModel = cameraViewModel
+        self.photoViewModel = photoViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -65,6 +67,7 @@ final class CameraViewController: UIViewController {
     public func bindInput() {
         cameraBottomView.cameraButtonTapped
             .sink { [weak self] _ in
+                self?.input.send(.cameraButtonTapped)
             }
             .store(in: &cancellables)
     }
@@ -73,21 +76,19 @@ final class CameraViewController: UIViewController {
         let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
         
         output
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 switch $0 {
                 case .cameraImage(let image):
-                    debugPrint("for camera image")
+                    debugPrint("output sink cameraimage")
+                    let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
+                    navigationController?.pushViewController(photoViewController, animated: true)
                 case .filterState(let filter):
                     debugPrint("for filter state")
                 }
             }
             .store(in: &cancellables)
-    }
-}
-
-extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     }
 }
 
