@@ -7,15 +7,15 @@ import CoreImage
 final class CameraManager: NSObject {
     private let imageFilterManager: ImageFilterManager
     private var captureSession = AVCaptureSession()
-    private var videoPreviewLayer: AVCaptureVideoPreviewLayer!
     private var videoDataOutput = AVCaptureVideoDataOutput()
     private var capturedImage: CIImage?
+    private var videoView: VideoView?
     
     init(imageFilterManager: ImageFilterManager) {
         self.imageFilterManager = imageFilterManager
     }
     
-    func setupCamera(preset: AVCaptureSession.Preset = .photo, view: UIView) {
+    func setupCamera(preset: AVCaptureSession.Preset = .photo, view: VideoView) {
         self.captureSession.sessionPreset = preset
 
         guard let camera = AVCaptureDevice.default(
@@ -29,14 +29,9 @@ final class CameraManager: NSObject {
 
             setupInput(input)
             setupOutput()
-
-            DispatchQueue.main.async {
-                self.videoPreviewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-                self.videoPreviewLayer.videoGravity = .resizeAspectFill
-                self.videoPreviewLayer.frame = view.bounds
-                view.layer.addSublayer(self.videoPreviewLayer)
-            }
-
+            videoView = view
+            videoView?.contentMode = .scaleAspectFill
+            
             startSession()
         } catch {
             print("Camera Setting Error: \(error)")
@@ -91,10 +86,9 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         
         guard let filtered = imageFilterManager.applyVintageFilter(ciImage: ciImage) else { return }
         capturedImage = filtered
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let cgImage = imageFilterManager.context.createCGImage(filtered, from: filtered.extent)
-            self.videoPreviewLayer.contents = cgImage
-        }
+        
+        let rotated = filtered.transformed(by: CGAffineTransform(rotationAngle: -.pi / 2))
+        let cgImage = imageFilterManager.context.createCGImage(rotated, from: rotated.extent)
+        videoView?.renderCGImage(cgImage)
     }
 }
