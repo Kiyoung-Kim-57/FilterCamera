@@ -7,11 +7,11 @@ final class ImageFilterManager {
     func applyVintageFilter(ciImage: CIImage) -> CIImage? {
         @FilterBuilder
         var filteredImage: CIImage? {
-//            photoEffectTransfer(ciImage: ciImage)
-            tonalFilter(ciImage: ciImage)
-            noiseFilter(rect: ciImage.extent)
-//            sepiaFilter()
-            vignetteFilter(intensity: 1.2, radius: 3.0)
+            photoEffectTransfer(ciImage: ciImage)
+//            tonalFilter(ciImage: ciImage)
+//            noiseFilter(rect: ciImage.extent)
+            sepiaFilter()
+            vignetteFilter(intensity: 1.5, radius: 3.0)
         }
         
         return filteredImage
