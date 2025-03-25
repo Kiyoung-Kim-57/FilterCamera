@@ -48,19 +48,20 @@ final class CameraViewController: UIViewController {
     
     public func setupConstraints() {
         cameraBottomView.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(Constants.bottomViewHeight)
+            $0.top.equalTo(cameraView.snp.bottom)
         }
         
         cameraView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.bottom.equalTo(cameraBottomView.snp.top)
+            $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(4.0 / 3.0)
         }
     }
     
     public func configureUI() {
+        view.backgroundColor = CameraColor.background.color
         cameraView.backgroundColor = .clear
     }
     
