@@ -32,7 +32,7 @@ final class PhotoViewModel {
         return output.eraseToAnyPublisher()
     }
     
-    private func connectCameraDataToView(view: UIView) {
+    private func connectCameraDataToView(view: VideoView) {
         cameraManager.setupCamera(view: view)
     }
 }

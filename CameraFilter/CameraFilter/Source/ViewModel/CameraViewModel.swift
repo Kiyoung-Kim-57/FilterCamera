@@ -11,7 +11,7 @@ final class CameraViewModel {
     
     // MARK: Input-Output
     enum Input {
-        case viewDidLoad(UIView)
+        case viewDidLoad(VideoView)
         case cameraButtonTapped
         case filterButtonTapped(Filter)
         case photoViewDidDeinit
@@ -52,7 +52,7 @@ final class CameraViewModel {
         output.send(.filterState(filter))
     }
     
-    private func connectCameraDataToView(view: UIView) {
+    private func connectCameraDataToView(view: VideoView) {
         cameraManager.setupCamera(view: view)
     }
 }

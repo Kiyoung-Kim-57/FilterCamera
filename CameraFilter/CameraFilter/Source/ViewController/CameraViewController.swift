@@ -9,7 +9,7 @@ final class CameraViewController: UIViewController {
     private let cameraBottomView: CameraBottomView
     private let cameraViewModel: CameraViewModel
     private let photoViewModel: PhotoViewModel
-    private let cameraView = UIView()
+    private let cameraView = VideoView()
     
     private let input = PassthroughSubject<CameraViewModel.Input, Never>()
 
