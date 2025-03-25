@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  CameraFilter
-//
-//  Created by 김기영 on 3/20/25.
-//
-
 import UIKit
 
 @main

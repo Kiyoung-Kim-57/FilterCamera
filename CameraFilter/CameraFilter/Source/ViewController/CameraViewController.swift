@@ -1,6 +1,6 @@
 import AVFoundation
-import UIKit
 import Combine
+import UIKit
 import SnapKit
 
 final class CameraViewController: UIViewController {

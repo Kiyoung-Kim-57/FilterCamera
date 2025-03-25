@@ -1,7 +1,6 @@
-import Foundation
 import AVFoundation
-import UIKit
 import CoreImage
+import UIKit
 
 // MARK: 디바이스의 카메라 데이터 처리
 final class CameraManager: NSObject {

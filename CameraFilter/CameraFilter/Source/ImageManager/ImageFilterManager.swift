@@ -1,4 +1,3 @@
-import Foundation
 import CoreImage
 
 final class ImageFilterManager {
@@ -8,8 +7,7 @@ final class ImageFilterManager {
         @FilterBuilder
         var filteredImage: CIImage? {
             photoEffectTransfer(ciImage: ciImage)
-//            tonalFilter(ciImage: ciImage)
-//            noiseFilter(rect: ciImage.extent)
+            noiseFilter(rect: ciImage.extent)
             sepiaFilter()
             vignetteFilter(intensity: 1.5, radius: 3.0)
         }
