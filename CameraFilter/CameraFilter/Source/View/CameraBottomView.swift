@@ -52,8 +52,8 @@ final class CameraBottomView: UIView {
     }
     
     private func configureUI() {
+        backgroundColor = CameraColor.background.color
         filterButton.setImage(CameraImage.filterIcon.image, for: .normal)
-        filterButton.imageView?.tintColor = .white
         
         switchCameraButton.setImage(CameraImage.switchIcon.image, for: .normal)
     }
