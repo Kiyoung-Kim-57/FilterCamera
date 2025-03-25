@@ -1,26 +1,25 @@
 import Foundation
 import CoreImage
 
-final class ImageFilter {
-    func applyVintageFilter(ciImage: CIImage) -> CGImage? {
-        let context = CIContext()
-        
+final class ImageFilterManager {
+    let context = CIContext()
+    
+    func applyVintageFilter(ciImage: CIImage) -> CIImage? {
         @FilterBuilder
         var filteredImage: CIImage? {
             photoEffectTransfer(ciImage: ciImage)
-            tonalFilter()
-            noiseFilter(rect: ciImage.extent)
+//            tonalFilter(ciImage: ciImage)
+//            noiseFilter(rect: ciImage.extent)
             sepiaFilter()
-            vignetteFilter(intensity: 1.2, radius: 3.0)
+            vignetteFilter(intensity: 1.5, radius: 3.0)
         }
         
-        guard let filteredImage else { return nil }
-        return context.createCGImage(filteredImage, from: filteredImage.extent)
+        return filteredImage
     }
 }
 
 // MARK: Filters
-extension ImageFilter {
+extension ImageFilterManager {
     private func photoEffectTransfer(ciImage: CIImage = CIImage()) -> CIFilter {
         let filter = Filter.photoEffectTransfer.ciFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)

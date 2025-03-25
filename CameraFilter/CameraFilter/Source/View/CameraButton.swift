@@ -3,20 +3,16 @@ import SnapKit
 
 final class CameraButton: UIButton {
     private let innerCircle = UIView()
-    private let innerEllipsis = UIImageView()
     private let timerLabel = UILabel()
-    private let isHost: Bool
     
     // MARK: init
-    init(isHost: Bool) {
-        self.isHost = isHost
+    init() {
         super.init(frame: .zero)
         
         addViews()
         setupContstraints()
         configureUI()
         
-        guard isHost else { return }
         setActions()
     }
     
@@ -25,18 +21,12 @@ final class CameraButton: UIButton {
     }
     
     private func addViews() {
-        [innerCircle, innerEllipsis, timerLabel].forEach { addSubview($0) }
+        [innerCircle, timerLabel].forEach { addSubview($0) }
     }
     
     private func setupContstraints() {
         innerCircle.snp.makeConstraints {
             $0.width.height.equalTo(Constants.innerCircleSize)
-            $0.center.equalToSuperview()
-        }
-        
-        innerEllipsis.snp.makeConstraints {
-            $0.width.equalTo(Constants.ellipsisWidth)
-            $0.height.equalTo(Constants.ellipsisHeight)
             $0.center.equalToSuperview()
         }
         
@@ -52,10 +42,7 @@ final class CameraButton: UIButton {
         self.layer.borderWidth = Constants.ringWidth
         
         innerCircle.isUserInteractionEnabled = false
-        innerCircle.backgroundColor = isHost ? .white : .systemGray5
-        
-        innerEllipsis.isHidden = isHost
-        innerEllipsis.image = CameraImage.ellipsisIcon.image
+        innerCircle.backgroundColor = .white
         
         timerLabel.text = "3"
         timerLabel.textAlignment = .center
@@ -66,9 +53,7 @@ final class CameraButton: UIButton {
     
     func configureTimer(_ count: Int) {
         innerCircle.isHidden = true
-        innerEllipsis.isHidden = true
         timerLabel.isHidden = false
-        timerLabel.text = "\(count)"
     }
     
     func stopTimer() {

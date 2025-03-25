@@ -6,7 +6,6 @@ final class CameraBottomView: UIView {
     private let filterButton = UIButton()
     private let switchCameraButton = UIButton()
     private let cameraButton: CameraButton
-    private let isHost: Bool
     
     var cameraButtonTapped: AnyPublisher<Void, Never> {
         cameraButton.tapPublisher
@@ -14,9 +13,8 @@ final class CameraBottomView: UIView {
     }
     
     // MARK: init
-    init(isHost: Bool) {
-        self.isHost = isHost
-        self.cameraButton = CameraButton(isHost: isHost)
+    init() {
+        self.cameraButton = CameraButton()
         super.init(frame: .zero)
         
         addViews()
@@ -54,13 +52,10 @@ final class CameraBottomView: UIView {
     }
     
     private func configureUI() {
-//        filterButton.setImage(PTGImage.filterIcon.image, for: .normal)
-//        filterButton.imageView?.tintColor = isHost ? .white : PTGColor.gray85.color
+        filterButton.setImage(CameraImage.filterIcon.image, for: .normal)
+        filterButton.imageView?.tintColor = .white
         
-//        switchCameraButton.setImage(PTGImage.switchIcon.image, for: .normal)
-        
-        switchCameraButton.isHidden = true
-        filterButton.isHidden = true
+        switchCameraButton.setImage(CameraImage.switchIcon.image, for: .normal)
     }
     
     func setCameraButtonTimer(_ count: Int) {
@@ -81,6 +76,5 @@ extension CameraBottomView {
         static let iconButtonSize: CGFloat = 40
         static let bottomLeadingSpacing: CGFloat = 53
         static let bottomTrailingSpacing: CGFloat = 53
-        static let throttleTime: CGFloat = 4
     }
 }

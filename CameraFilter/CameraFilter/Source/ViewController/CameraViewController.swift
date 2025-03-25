@@ -1,14 +1,22 @@
 import AVFoundation
 import UIKit
 import Combine
+import SnapKit
 
 final class CameraViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
   
-    private let photoRoomBottomView: CameraBottomView
+    private let cameraBottomView: CameraBottomView
+    private let cameraViewModel: CameraViewModel
+    private let photoViewModel: PhotoViewModel
+    private let cameraView = VideoView()
+    
+    private let input = PassthroughSubject<CameraViewModel.Input, Never>()
 
-    init(cameraBottomView: CameraBottomView) {
-        self.photoRoomBottomView = cameraBottomView
+    init(cameraBottomView: CameraBottomView, cameraViewModel: CameraViewModel, photoViewModel: PhotoViewModel) {
+        self.cameraBottomView = cameraBottomView
+        self.cameraViewModel = cameraViewModel
+        self.photoViewModel = photoViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -19,51 +27,73 @@ final class CameraViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        navigationController?.setNavigationBarHidden(true, animated: false)
         
         addViews()
         setupConstraints()
         configureUI()
         bindInput()
         bindOutput()
+        viewDidLoadInput()
+    }
+    
+    private func viewDidLoadInput() {
+        input.send(.viewDidLoad(cameraView))
     }
     
     public func addViews() {
-        [photoRoomBottomView].forEach {
+        [cameraBottomView, cameraView].forEach {
             view.addSubview($0)
         }
     }
     
     public func setupConstraints() {
-        photoRoomBottomView.snp.makeConstraints {
+        cameraBottomView.snp.makeConstraints {
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(Constants.bottomViewHeight)
         }
+        
+        cameraView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(cameraBottomView.snp.top)
+        }
     }
     
     public func configureUI() {
+        cameraView.backgroundColor = .clear
     }
     
     public func bindInput() {
-        photoRoomBottomView.cameraButtonTapped
+        cameraBottomView.cameraButtonTapped
             .sink { [weak self] _ in
+                self?.input.send(.cameraButtonTapped)
             }
             .store(in: &cancellables)
     }
     
     public func bindOutput() {
-    }
-}
-
-extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
+        
+        output
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                switch $0 {
+                case .cameraImage(let image):
+                    let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
+                    navigationController?.pushViewController(photoViewController, animated: true)
+                case .filterState(let filter):
+                    debugPrint("for filter state")
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
 extension CameraViewController {
     private enum Constants {
-        static let bottomViewHeight: CGFloat = 80
+        static let bottomViewHeight: CGFloat = 100
         static let navigationHeight: CGFloat = 48
         static let circleButtonSize: CGSize = CGSize(width: 52, height: 52)
         static let micButtonBottomSpacing: CGFloat = -4
