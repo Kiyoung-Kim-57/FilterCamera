@@ -4,10 +4,16 @@ import UIKit
 import CoreImage
 
 // MARK: 디바이스의 카메라 데이터 처리
-final class CameraManager {
+final class CameraManager: NSObject {
+    private let imageFilterManager: ImageFilterManager
     private var captureSession = AVCaptureSession()
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer!
+    private var videoDataOutput = AVCaptureVideoDataOutput()
     private var capturedImage: CIImage?
+    
+    init(imageFilterManager: ImageFilterManager) {
+        self.imageFilterManager = imageFilterManager
+    }
     
     func setupCamera(preset: AVCaptureSession.Preset = .photo, view: UIView) {
         self.captureSession.sessionPreset = preset
@@ -21,9 +27,8 @@ final class CameraManager {
         do {
             let input = try AVCaptureDeviceInput(device: camera)
 
-            if self.captureSession.canAddInput(input) {
-                self.captureSession.addInput(input)
-            }
+            setupInput(input)
+            setupOutput()
 
             DispatchQueue.main.async {
                 self.videoPreviewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
@@ -32,14 +37,25 @@ final class CameraManager {
                 view.layer.addSublayer(self.videoPreviewLayer)
             }
 
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.captureSession.startRunning()
-            }
-
+            startSession()
         } catch {
             print("Camera Setting Error: \(error)")
         }
     }
+    
+    private func setupInput(_ input: AVCaptureDeviceInput) {
+        if captureSession.canAddInput(input) {
+            captureSession.addInput(input)
+        }
+    }
+    
+    private func setupOutput() {
+        videoDataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
+        if captureSession.canAddOutput(videoDataOutput) {
+            captureSession.addOutput(videoDataOutput)
+        }
+    }
+    
     //ViewController의 captureOutput 메서드에서 사용
     func adaptCIFilterToFrame(buffer: CMSampleBuffer, context: CIContext, filter: CIFilter?) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(buffer) else  { return }
@@ -53,9 +69,32 @@ final class CameraManager {
     }
     
     // Get Photo from camera
-    func takePhoto(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .up) -> UIImage? {
+    func takePhoto(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .right) -> UIImage? {
         guard let ciImage = self.capturedImage else { return nil }
-        
+        captureSession.stopRunning()
         return UIImage(ciImage: ciImage, scale: scale, orientation: orientation)
+    }
+    
+    func startSession() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            captureSession.startRunning()
+        }
+    }
+}
+
+extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        
+        guard let filtered = imageFilterManager.applyVintageFilter(ciImage: ciImage) else { return }
+        capturedImage = filtered
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let cgImage = imageFilterManager.context.createCGImage(filtered, from: filtered.extent)
+            self.videoPreviewLayer.contents = cgImage
+        }
     }
 }

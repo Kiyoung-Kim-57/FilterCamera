@@ -3,12 +3,10 @@ import Combine
 
 final class CameraViewModel {
     private let cameraManager: CameraManager
-    private let imageFilter: ImageFilter
     private var cancellables = Set<AnyCancellable>()
     
-    init(cameraManager: CameraManager, imageFilter: ImageFilter) {
+    init(cameraManager: CameraManager) {
         self.cameraManager = cameraManager
-        self.imageFilter = imageFilter
     }
     
     // MARK: Input-Output
@@ -16,6 +14,7 @@ final class CameraViewModel {
         case viewDidLoad(UIView)
         case cameraButtonTapped
         case filterButtonTapped(Filter)
+        case photoViewDidDeinit
     }
     
     enum Output {
@@ -32,11 +31,13 @@ final class CameraViewModel {
                 
                 switch input {
                 case .cameraButtonTapped:
-                    publishCameraImage(UIImage())
+                    publishCameraImage(cameraManager.takePhoto() ?? UIImage())
                 case .filterButtonTapped(let filter):
                     publishFilterState(filter)
                 case .viewDidLoad(let cameraView):
                     connectCameraDataToView(view: cameraView)
+                case .photoViewDidDeinit:
+                    cameraManager.startSession()
                 }
             }.store(in: &cancellables)
         
