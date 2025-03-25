@@ -1,2 +1,2 @@
 # CameraFilter
-Demo App for adapting filter to image
+Demo App for applying filters to image
