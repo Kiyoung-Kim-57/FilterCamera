@@ -81,7 +81,6 @@ final class CameraViewController: UIViewController {
                 guard let self else { return }
                 switch $0 {
                 case .cameraImage(let image):
-                    debugPrint("output sink cameraimage")
                     let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
                     navigationController?.pushViewController(photoViewController, animated: true)
                 case .filterState(let filter):
