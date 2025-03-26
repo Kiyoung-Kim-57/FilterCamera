@@ -29,6 +29,10 @@ final class CameraManager: NSObject {
             captureSession.startRunning()
         }
     }
+    
+    func changeFilter(filter: Filter) {
+        self.presentFilter = filter
+    }
 }
 
 // Set Up
