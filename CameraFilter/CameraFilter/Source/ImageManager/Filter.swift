@@ -1,6 +1,6 @@
 import CoreImage
 
-enum Filter: String {
+enum Filter: String, CaseIterable{
     case original
     case vintage
     case noir
