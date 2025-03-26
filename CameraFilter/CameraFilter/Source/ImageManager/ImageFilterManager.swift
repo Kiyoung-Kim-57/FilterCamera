@@ -2,6 +2,17 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 
 final class ImageFilterManager {
+    // Filters
+    private let photoEffectTransferFilter = CIFilter.photoEffectTransfer()
+    private let randomGeneratorFilter = CIFilter.randomGenerator()
+    private let multiplyBlendModeFilter = CIFilter.multiplyBlendMode()
+    private let sepiaToneFilter = CIFilter.sepiaTone()
+    private let vignetteFilter = CIFilter.vignette()
+    private let noirFilter = CIFilter.photoEffectNoir()
+    private let tonalFilter = CIFilter.photoEffectTonal()
+    private let bloomFilter = CIFilter.bloom()
+    // Though shared property is provided, I recommend to make own instance
+    static let shared: ImageFilterManager = .init()
     let context = CIContext()
     
     func applyFilters(_ ciImage: CIImage, filter: Filter) -> CIImage? {
@@ -42,31 +53,30 @@ final class ImageFilterManager {
         @FilterBuilder
         var filteredImage: CIImage? {
             photoEffectTransfer(ciImage: ciImage)
-            sepiaFilter()
-            bloomFilter()
+            vignetteFilter(intensity: 1.2, radius: 3.0)
+            bloomFilter(radius: 10, intensity: 0.5)
         }
-        return filteredImage
+        return filteredImage?.cropped(to: ciImage.extent)
     }
 }
 
 // MARK: Filters
 extension ImageFilterManager {
     private func photoEffectTransfer(ciImage: CIImage = CIImage()) -> CIFilter {
-        let filter = CIFilter.photoEffectTransfer()
+        let filter = photoEffectTransferFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         return filter
     }
     
     //덮어씌울 노이즈 레이어 생성
     private func noiseLayer(rect: CGRect) -> CIImage? {
-        let filter = CIFilter.randomGenerator()
-        let noiseImage = filter.outputImage?.cropped(to: rect)
+        let noiseImage = randomGeneratorFilter.outputImage?.cropped(to: rect)
         return noiseImage
     }
     
     //노이즈 필터
     private func noiseFilter(ciImage: CIImage = CIImage(), rect: CGRect) -> CIFilter {
-        let filter = CIFilter.multiplyBlendMode()
+        let filter = multiplyBlendModeFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(noiseLayer(rect: rect), forKey: kCIInputBackgroundImageKey)
         return filter
@@ -74,7 +84,7 @@ extension ImageFilterManager {
     
     // 비네트필터
     private func vignetteFilter(ciImage: CIImage = CIImage(), intensity: CGFloat, radius: CGFloat) -> CIFilter {
-        let filter = CIFilter.vignette()
+        let filter = vignetteFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(intensity, forKey: kCIInputIntensityKey)
         filter.setValue(radius, forKey: kCIInputRadiusKey)
@@ -83,21 +93,21 @@ extension ImageFilterManager {
     
     // Tonal, 흑백 느와르 필터
     private func tonalFilter(ciImage: CIImage = CIImage()) -> CIFilter {
-        let filter = CIFilter.photoEffectTonal()
+        let filter = tonalFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         return filter
     }
     
     // SepiaTone
     private func sepiaFilter(ciImage: CIImage = CIImage()) -> CIFilter {
-        let filter = CIFilter.sepiaTone()
+        let filter = sepiaToneFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         return filter
     }
     
     //Noir
     private func noirFilter(ciImage: CIImage = CIImage()) -> CIFilter {
-        let filter = CIFilter.photoEffectNoir()
+        let filter = noirFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         return filter
     }
@@ -108,7 +118,7 @@ extension ImageFilterManager {
         radius: CGFloat = 10,
         intensity: CGFloat = 0.5
     ) -> CIFilter {
-        let filter = CIFilter.bloom()
+        let filter = bloomFilter
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(radius, forKey: kCIInputRadiusKey)
         filter.setValue(intensity, forKey: kCIInputIntensityKey)
