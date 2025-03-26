@@ -136,8 +136,6 @@ final class CameraViewController: UIViewController {
                 case .cameraImage(let image):
                     let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
                     navigationController?.pushViewController(photoViewController, animated: true)
-                case .filterState(let filter):
-                    debugPrint("for filter state")
                 }
             }
             .store(in: &cancellables)
