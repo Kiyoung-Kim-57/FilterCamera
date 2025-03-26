@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  CameraFilter
-//
-//  Created by 김기영 on 3/20/25.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -20,7 +13,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let cameraBottomView = CameraBottomView()
         let cameraViewModel = CameraViewModel(cameraManager: cameraManager)
         let photoViewModel = PhotoViewModel(cameraManager: cameraManager)
+        let filterCollectionViewController = FilterCollectionViewController(cameraViewModel: cameraViewModel)
         let cameraViewController = CameraViewController(
+            filterCollectionViewController: filterCollectionViewController,
             cameraBottomView: cameraBottomView,
             cameraViewModel: cameraViewModel,
             photoViewModel: photoViewModel

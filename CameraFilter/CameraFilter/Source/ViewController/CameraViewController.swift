@@ -1,19 +1,27 @@
 import AVFoundation
-import UIKit
 import Combine
+import UIKit
 import SnapKit
 
 final class CameraViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
-  
+    
+    private let filterCollectionViewController: FilterCollectionViewController
     private let cameraBottomView: CameraBottomView
     private let cameraViewModel: CameraViewModel
     private let photoViewModel: PhotoViewModel
     private let cameraView = VideoView()
+    private let closeButton = UIButton()
     
     private let input = PassthroughSubject<CameraViewModel.Input, Never>()
-
-    init(cameraBottomView: CameraBottomView, cameraViewModel: CameraViewModel, photoViewModel: PhotoViewModel) {
+    
+    init(
+        filterCollectionViewController: FilterCollectionViewController,
+        cameraBottomView: CameraBottomView,
+        cameraViewModel: CameraViewModel,
+        photoViewModel: PhotoViewModel
+    ) {
+        self.filterCollectionViewController = filterCollectionViewController
         self.cameraBottomView = cameraBottomView
         self.cameraViewModel = cameraViewModel
         self.photoViewModel = photoViewModel
@@ -34,45 +42,90 @@ final class CameraViewController: UIViewController {
         bindInput()
         bindOutput()
         viewDidLoadInput()
+        applyTransform()
     }
     
     private func viewDidLoadInput() {
         input.send(.viewDidLoad(cameraView))
     }
     
-    public func addViews() {
-        [cameraBottomView, cameraView].forEach {
+    private func addViews() {
+        [filterCollectionViewController].forEach { vc in
+            addChild(vc)
+        }
+        
+        [cameraBottomView, cameraView, filterCollectionViewController.view, closeButton].forEach {
             view.addSubview($0)
+        }
+        
+        [filterCollectionViewController].forEach { vc in
+            vc.didMove(toParent: self)
         }
     }
     
-    public func setupConstraints() {
+    private func setupConstraints() {
         cameraBottomView.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(Constants.bottomViewHeight)
+            $0.top.equalTo(cameraView.snp.bottom)
         }
         
         cameraView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.bottom.equalTo(cameraBottomView.snp.top)
+            $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(4.0 / 3.0)
+        }
+        
+        filterCollectionViewController.view.snp.makeConstraints {
+            $0.bottom.equalTo(closeButton.snp.top)
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(cameraView.snp.bottom)
+        }
+        
+        closeButton.snp.makeConstraints {
+            $0.bottom.equalTo(view.snp.bottom)
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalTo(view.snp.leading).inset(10)
         }
     }
     
-    public func configureUI() {
+    private func configureUI() {
+        view.backgroundColor = CameraColor.background.color
         cameraView.backgroundColor = .clear
+        
+        var buttonConfig = UIButton.Configuration.plain()
+        buttonConfig.image = UIImage(systemName: "chevron.down")
+        buttonConfig.preferredSymbolConfigurationForImage = .init(pointSize: 24, weight: .medium)
+        buttonConfig.baseForegroundColor = .black
+        closeButton.configuration = buttonConfig
     }
     
-    public func bindInput() {
+    private func bindInput() {
         cameraBottomView.cameraButtonTapped
             .sink { [weak self] _ in
                 self?.input.send(.cameraButtonTapped)
             }
             .store(in: &cancellables)
+        
+        cameraBottomView.filterButtonTapped
+            .sink { [weak self] _ in
+                UIView.animate(withDuration: 0.3) {
+                    self?.restoreTransform()
+                }
+            }
+            .store(in: &cancellables)
+        
+        closeButton.tapPublisher
+            .sink { [weak self] _ in
+                UIView.animate(withDuration: 0.3) {
+                    self?.applyTransform()
+                }
+            }
+            .store(in: &cancellables)
     }
     
-    public func bindOutput() {
+    private func bindOutput() {
         let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
         
         output
@@ -83,20 +136,20 @@ final class CameraViewController: UIViewController {
                 case .cameraImage(let image):
                     let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
                     navigationController?.pushViewController(photoViewController, animated: true)
-                case .filterState(let filter):
-                    debugPrint("for filter state")
                 }
             }
             .store(in: &cancellables)
     }
-}
-
-extension CameraViewController {
-    private enum Constants {
-        static let bottomViewHeight: CGFloat = 100
-        static let navigationHeight: CGFloat = 48
-        static let circleButtonSize: CGSize = CGSize(width: 52, height: 52)
-        static let micButtonBottomSpacing: CGFloat = -4
-        static let micButtonLeadingSpacing: CGFloat = 16
+    
+    private func applyTransform() {
+        [filterCollectionViewController.view, closeButton].forEach {
+            $0?.transform = CGAffineTransform(translationX: 0, y: 300)
+        }
+    }
+    
+    private func restoreTransform() {
+        [filterCollectionViewController.view, closeButton].forEach {
+            $0?.transform = .identity
+        }
     }
 }

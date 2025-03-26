@@ -1,5 +1,5 @@
-import UIKit
 import Combine
+import UIKit
 import SnapKit
 
 final class CameraBottomView: UIView {
@@ -9,6 +9,11 @@ final class CameraBottomView: UIView {
     
     var cameraButtonTapped: AnyPublisher<Void, Never> {
         cameraButton.tapPublisher
+            .eraseToAnyPublisher()
+    }
+    
+    var filterButtonTapped: AnyPublisher<Void, Never> {
+        filterButton.tapPublisher
             .eraseToAnyPublisher()
     }
     
@@ -52,8 +57,8 @@ final class CameraBottomView: UIView {
     }
     
     private func configureUI() {
+        backgroundColor = CameraColor.background.color
         filterButton.setImage(CameraImage.filterIcon.image, for: .normal)
-        filterButton.imageView?.tintColor = .white
         
         switchCameraButton.setImage(CameraImage.switchIcon.image, for: .normal)
     }

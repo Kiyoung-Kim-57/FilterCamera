@@ -1,5 +1,5 @@
-import UIKit
 import Combine
+import UIKit
 
 final class CameraViewModel {
     private let cameraManager: CameraManager
@@ -14,12 +14,10 @@ final class CameraViewModel {
         case viewDidLoad(VideoView)
         case cameraButtonTapped
         case filterButtonTapped(Filter)
-        case photoViewDidDeinit
     }
     
     enum Output {
         case cameraImage(UIImage)
-        case filterState(Filter)
     }
     
     private var output = PassthroughSubject<Output, Never>()
@@ -33,11 +31,9 @@ final class CameraViewModel {
                 case .cameraButtonTapped:
                     publishCameraImage(cameraManager.takePhoto() ?? UIImage())
                 case .filterButtonTapped(let filter):
-                    publishFilterState(filter)
+                    changeFilterState(filter)
                 case .viewDidLoad(let cameraView):
                     connectCameraDataToView(view: cameraView)
-                case .photoViewDidDeinit:
-                    cameraManager.startSession()
                 }
             }.store(in: &cancellables)
         
@@ -48,8 +44,8 @@ final class CameraViewModel {
         output.send(.cameraImage(image))
     }
     
-    private func publishFilterState(_ filter: Filter) {
-        output.send(.filterState(filter))
+    private func changeFilterState(_ filter: Filter) {
+        cameraManager.changeFilter(filter: filter)
     }
     
     private func connectCameraDataToView(view: VideoView) {
