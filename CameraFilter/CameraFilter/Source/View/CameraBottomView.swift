@@ -12,6 +12,11 @@ final class CameraBottomView: UIView {
             .eraseToAnyPublisher()
     }
     
+    var filterButtonTapped: AnyPublisher<Void, Never> {
+        filterButton.tapPublisher
+            .eraseToAnyPublisher()
+    }
+    
     // MARK: init
     init() {
         self.cameraButton = CameraButton()
