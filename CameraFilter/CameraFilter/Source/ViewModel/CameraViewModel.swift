@@ -14,7 +14,6 @@ final class CameraViewModel {
         case viewDidLoad(VideoView)
         case cameraButtonTapped
         case filterButtonTapped(Filter)
-        case photoViewDidDeinit
     }
     
     enum Output {
@@ -36,8 +35,6 @@ final class CameraViewModel {
                     publishFilterState(filter)
                 case .viewDidLoad(let cameraView):
                     connectCameraDataToView(view: cameraView)
-                case .photoViewDidDeinit:
-                    cameraManager.startSession()
                 }
             }.store(in: &cancellables)
         
