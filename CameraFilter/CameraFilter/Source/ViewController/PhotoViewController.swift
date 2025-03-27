@@ -109,12 +109,12 @@ final class PhotoViewController: UIViewController {
 extension PhotoViewController {
     private func showAlertForPhotoLibraryPermission() {
         let alertController = UIAlertController(
-            title: "사진을 저장하기 위해서 접근 권한을 설정해주세요",
-            message: "다음 경로로 접근해 권한을 설정해주세요\n설정 - 앱 - CameraFilter",
+            title: "Please grant access permission to save the photo.",
+            message: "Please go to the following path to grant permission: Settings > Apps > CameraFilter.",
             preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alertController.addAction(UIAlertAction(title: "설정", style: .default) { _ in
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Setting", style: .default) { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
             UIApplication.shared.open(url)
         })
@@ -123,32 +123,32 @@ extension PhotoViewController {
     
     private func showAlertForNoImage() {
         let alertController = UIAlertController(
-            title: "촬영된 사진이 존재하지 않습니다",
-            message: "다시 카메라로 돌아가 촬영을 진행해주세요",
+            title: "The captured photo does not exist.",
+            message: "Please go back to the camera and take the photo again.",
             preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alertController.addAction(UIAlertAction(title: "확인", style: .destructive))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Confirm", style: .destructive))
         present(alertController, animated: true)
     }
     
     private func showAlertSavedSuccess() {
         let alertController = UIAlertController(
-            title: "사진 저장이 완료됐습니다.",
-            message: "저장된 사진은 앨범에서 확인 가능합니다.",
+            title: "The photo has been successfully saved.",
+            message: "The saved photo can be found in the album.",
             preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: "확인", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Confirm", style: .cancel))
         present(alertController, animated: true)
     }
     
     private func showAlertSaveFailed() {
         let alertController = UIAlertController(
-            title: "사진 저장에 실패했습니다.",
-            message: "개발자에게 문의하세요",
+            title: "Failed to save the photo.",
+            message: "Please contact the developer.",
             preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: "확인", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Confirm", style: .cancel))
         present(alertController, animated: true)
     }
 }
