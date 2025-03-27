@@ -181,8 +181,11 @@
 				DEVELOPMENT_TEAM = S68RW89WQA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CameraFilter/Resource/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Filter Camera";
 				INFOPLIST_KEY_NSCameraUsageDescription = Camera;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = Mic;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Permision to add photo to album";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Permission to access to album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -212,8 +215,11 @@
 				DEVELOPMENT_TEAM = S68RW89WQA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CameraFilter/Resource/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Filter Camera";
 				INFOPLIST_KEY_NSCameraUsageDescription = Camera;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = Mic;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Permision to add photo to album";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Permission to access to album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";

@@ -12,6 +12,7 @@ final class CameraManager: NSObject {
     private var videoView: VideoView?
     private var presentFilter: Filter = .original
     private var cancellables = Set<AnyCancellable>()
+    private var context = CIContext()
     
     @Published private var position: AVCaptureDevice.Position = .back
     
@@ -25,7 +26,14 @@ final class CameraManager: NSObject {
     func takePhoto(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .right) -> UIImage? {
         guard let ciImage = capturedImage else { return nil }
         captureSession.stopRunning()
-        return UIImage(ciImage: ciImage, scale: scale, orientation: orientation)
+        
+        guard let pngData = context.pngRepresentation(
+            of: ciImage,
+            format: CIFormat.RGBA8,
+            colorSpace: CGColorSpaceCreateDeviceRGB()
+        ) else { return nil }
+        
+        return UIImage(data: pngData)
     }
     
     func startSession() {
@@ -112,14 +120,31 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         
         guard let filtered = imageFilterManager.applyFilters(ciImage, filter: self.presentFilter) else { return }
-        capturedImage = filtered
-        let rotated = filtered.transformed(by: CGAffineTransform(rotationAngle: -.pi / 2))
+        let rotated = filtered.transformed(by: Transform.rotate90.affine)
         let flipped = flipImageWhenFrontCamera(rotated)
+        capturedImage = flipped
         let cgImage = imageFilterManager.context.createCGImage(flipped, from: flipped.extent)
         videoView?.renderCGImage(cgImage)
     }
     
     private func flipImageWhenFrontCamera(_ image: CIImage) -> CIImage {
-        return (position == .front) ? image.transformed(by: CGAffineTransform(scaleX: -1, y: 1)) : image
+        let transform = Transform.horizontalFlip.affine
+        return (position == .front) ? image.transformed(by: transform) : image
+    }
+}
+
+extension CameraManager {
+    enum Transform {
+        case rotate90
+        case horizontalFlip
+        
+        var affine: CGAffineTransform {
+            switch self {
+            case .rotate90:
+                CGAffineTransform(rotationAngle: -.pi / 2)
+            case .horizontalFlip:
+                CGAffineTransform(scaleX: -1, y: 1)
+            }
+        }
     }
 }

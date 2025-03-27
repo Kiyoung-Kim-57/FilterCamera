@@ -12,9 +12,13 @@ final class PhotoViewModel {
     // MARK: Input-Output
     enum Input {
         case photoViewDidDeinit
+        case saveButtonTapped(UIImage)
     }
     
-    enum Output { }
+    enum Output {
+        case successAlert
+        case failAlert
+    }
     
     private var output = PassthroughSubject<Output, Never>()
     
@@ -26,6 +30,8 @@ final class PhotoViewModel {
                 switch input {
                 case .photoViewDidDeinit:
                     cameraManager.startSession()
+                case .saveButtonTapped(let image):
+                    saveImageToPhotoLibrary(image: image)
                 }
             }.store(in: &cancellables)
         
@@ -34,5 +40,14 @@ final class PhotoViewModel {
     
     private func connectCameraDataToView(view: VideoView) {
         cameraManager.setupCamera(view: view)
+    }
+    
+    private func saveImageToPhotoLibrary(image: UIImage) {
+        
+        if PhotoSaveManager.savePhoto(image: image) {
+            output.send(.successAlert)
+        } else {
+            output.send(.failAlert)
+        }
     }
 }
