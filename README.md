@@ -2,7 +2,7 @@
 This camera app applies filters to the live camera feed in real time. 
 Users can select different filters, save the captured photos, and share them easily.
 ### Tech
-#UIKit #Combine #AVFoundation #CoreImage
+#UIKit #Combine #AVFoundation #CoreImage #MVVM
 ### Features
 
 |Camera|Filter|Save&Share|
