@@ -3,14 +3,12 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // 앱이 시작될 때 카메라 권한을 요청함
+        // Request Camera Permission
         AppPermissionManager.requestCameraPermission()
         
-        // 앱이 시작될 때 음성 권한을 요청함
-        AppPermissionManager.requestMicrophonePermission()
+        // Request Photo Library Permission
+        AppPermissionManager.requestPhotoLibraryPermission()
         return true
     }
 
