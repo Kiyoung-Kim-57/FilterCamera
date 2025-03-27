@@ -92,7 +92,7 @@ final class CameraViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = CameraColor.background.color
-        cameraView.backgroundColor = .clear
+        cameraView.backgroundColor = .black
         
         var buttonConfig = UIButton.Configuration.plain()
         buttonConfig.image = UIImage(systemName: "chevron.down")
@@ -113,6 +113,12 @@ final class CameraViewController: UIViewController {
                 UIView.animate(withDuration: 0.3) {
                     self?.restoreTransform()
                 }
+            }
+            .store(in: &cancellables)
+        
+        cameraBottomView.switchButtonTapped
+            .sink { [weak self] _ in
+                self?.input.send(.switchButtonTapped)
             }
             .store(in: &cancellables)
         

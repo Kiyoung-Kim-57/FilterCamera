@@ -1,24 +1,29 @@
 import AVFoundation
 import CoreImage
+import Combine
 import UIKit
 
-// MARK: 디바이스의 카메라 데이터 처리
 final class CameraManager: NSObject {
     private let imageFilterManager: ImageFilterManager
     private var captureSession = AVCaptureSession()
     private var videoDataOutput = AVCaptureVideoDataOutput()
+    private var videoDataInput: AVCaptureDeviceInput?
     private var capturedImage: CIImage?
     private var videoView: VideoView?
     private var presentFilter: Filter = .original
-    private var devicePosition: AVCaptureDevice.Position = .back
+    private var cancellables = Set<AnyCancellable>()
+    
+    @Published private var position: AVCaptureDevice.Position = .back
     
     init(imageFilterManager: ImageFilterManager) {
         self.imageFilterManager = imageFilterManager
+        super.init()
+        bindDevicePosition()
     }
     
     // Get Photo from camera
     func takePhoto(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .right) -> UIImage? {
-        guard let ciImage = self.capturedImage else { return nil }
+        guard let ciImage = capturedImage else { return nil }
         captureSession.stopRunning()
         return UIImage(ciImage: ciImage, scale: scale, orientation: orientation)
     }
@@ -31,7 +36,11 @@ final class CameraManager: NSObject {
     }
     
     func changeFilter(filter: Filter) {
-        self.presentFilter = filter
+        presentFilter = filter
+    }
+    
+    func changeDevicePosition() {
+         position = (position == .back) ? .front : .back
     }
 }
 
@@ -39,29 +48,14 @@ final class CameraManager: NSObject {
 extension CameraManager {
     func setupCamera(preset: AVCaptureSession.Preset = .photo, view: VideoView) {
         self.captureSession.sessionPreset = .photo
-
-        guard let camera = AVCaptureDevice.default(
-            .builtInWideAngleCamera,
-            for: .video,
-            position: devicePosition
-        ) else { return }
-
+        
         do {
-            let input = try AVCaptureDeviceInput(device: camera)
-
-            setupInput(input)
+            try setDeviceInput(position: .back)
             setupOutput()
             videoView = view
-            videoView?.layer.contentsGravity = .resizeAspectFill
             startSession()
         } catch {
             print("Camera Setting Error: \(error)")
-        }
-    }
-    
-    private func setupInput(_ input: AVCaptureDeviceInput) {
-        if captureSession.canAddInput(input) {
-            captureSession.addInput(input)
         }
     }
     
@@ -70,6 +64,44 @@ extension CameraManager {
         if captureSession.canAddOutput(videoDataOutput) {
             captureSession.addOutput(videoDataOutput)
         }
+    }
+    
+    private func setDeviceInput(position: AVCaptureDevice.Position) throws {
+        guard let camera = AVCaptureDevice.default(
+            .builtInWideAngleCamera,
+            for: .video,
+            position: position
+        ) else { return }
+        
+        let newInput = try AVCaptureDeviceInput(device: camera)
+        
+        captureSession.beginConfiguration()
+        defer {
+            captureSession.commitConfiguration()
+            startSession()
+        }
+        
+        if let input = videoDataInput {
+            captureSession.removeInput(input)
+        }
+        
+        videoDataInput = newInput
+        
+        if captureSession.canAddInput(newInput) {
+            captureSession.addInput(newInput)
+        }
+    }
+    
+    private func bindDevicePosition() {
+        $position
+            .sink { [weak self] position in
+                do {
+                    try self?.setDeviceInput(position: position)
+                } catch {
+                    print("Device Setting Error: \(error)")
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -82,7 +114,12 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         guard let filtered = imageFilterManager.applyFilters(ciImage, filter: self.presentFilter) else { return }
         capturedImage = filtered
         let rotated = filtered.transformed(by: CGAffineTransform(rotationAngle: -.pi / 2))
-        let cgImage = imageFilterManager.context.createCGImage(rotated, from: rotated.extent)
+        let flipped = flipImageWhenFrontCamera(rotated)
+        let cgImage = imageFilterManager.context.createCGImage(flipped, from: flipped.extent)
         videoView?.renderCGImage(cgImage)
+    }
+    
+    private func flipImageWhenFrontCamera(_ image: CIImage) -> CIImage {
+        return (position == .front) ? image.transformed(by: CGAffineTransform(scaleX: -1, y: 1)) : image
     }
 }

@@ -5,6 +5,7 @@ final class VideoView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        layer.contentsGravity = .resizeAspectFill
     }
     
     @available(*, unavailable)
