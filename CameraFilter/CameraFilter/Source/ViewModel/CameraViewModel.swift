@@ -14,6 +14,7 @@ final class CameraViewModel {
         case viewDidLoad(VideoView)
         case cameraButtonTapped
         case filterButtonTapped(Filter)
+        case switchButtonTapped
     }
     
     enum Output {
@@ -34,6 +35,8 @@ final class CameraViewModel {
                     changeFilterState(filter)
                 case .viewDidLoad(let cameraView):
                     connectCameraDataToView(view: cameraView)
+                case .switchButtonTapped:
+                    changeCameraPosition()
                 }
             }.store(in: &cancellables)
         
@@ -50,5 +53,9 @@ final class CameraViewModel {
     
     private func connectCameraDataToView(view: VideoView) {
         cameraManager.setupCamera(view: view)
+    }
+    
+    private func changeCameraPosition() {
+        cameraManager.changeDevicePosition()
     }
 }

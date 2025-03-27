@@ -17,6 +17,11 @@ final class CameraBottomView: UIView {
             .eraseToAnyPublisher()
     }
     
+    var switchButtonTapped: AnyPublisher<Void, Never> {
+        switchCameraButton.tapPublisher
+            .eraseToAnyPublisher()
+    }
+    
     // MARK: init
     init() {
         self.cameraButton = CameraButton()
@@ -69,10 +74,6 @@ final class CameraBottomView: UIView {
     
     func stopCameraButtonTimer() {
         cameraButton.stopTimer()
-    }
-    
-    func highlightCameraButton() {
-//        cameraButton.layer.borderColor = PTGColor.primaryGreen.color.cgColor
     }
 }
 
