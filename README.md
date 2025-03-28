@@ -63,7 +63,7 @@ func applyFilters(to image: CIImage) -> CIImage? {
     vignetteFilter?.setValue(1.5, forKey: kCIInputIntensityKey)
     vignetteFilter?.setValue(2.0, forKey: kCIInputRadiusKey)
 
-    return vignetteFilter?.outputImage // 🎨 최종 CIImage (레시피)
+    return vignetteFilter?.outputImage 
 }
 ```
 
