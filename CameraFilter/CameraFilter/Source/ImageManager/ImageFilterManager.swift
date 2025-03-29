@@ -125,5 +125,3 @@ extension ImageFilterManager {
         return filter
     }
 }
-
-
