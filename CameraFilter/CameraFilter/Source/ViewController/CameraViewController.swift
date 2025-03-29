@@ -12,8 +12,10 @@ final class CameraViewController: UIViewController {
     private let photoViewModel: PhotoViewModel
     private let cameraView = VideoView()
     private let closeButton = UIButton()
+    private var isCaptured: Bool = false
     
-    private let input = PassthroughSubject<CameraViewModel.Input, Never>()
+    private let cameraInput = PassthroughSubject<CameraViewModel.Input, Never>()
+    private let photoInput = PassthroughSubject<PhotoViewModel.Input, Never>()
     
     init(
         filterCollectionViewController: FilterCollectionViewController,
@@ -46,7 +48,7 @@ final class CameraViewController: UIViewController {
     }
     
     private func viewDidLoadInput() {
-        input.send(.viewDidLoad(cameraView))
+        cameraInput.send(.viewDidLoad(cameraView))
     }
     
     private func addViews() {
@@ -103,8 +105,9 @@ final class CameraViewController: UIViewController {
     
     private func bindInput() {
         cameraBottomView.cameraButtonTapped
+            .throttle(for: .seconds(2.0), scheduler: RunLoop.main, latest: false)
             .sink { [weak self] _ in
-                self?.input.send(.cameraButtonTapped)
+                self?.cameraInput.send(.cameraButtonTapped)
             }
             .store(in: &cancellables)
         
@@ -118,7 +121,7 @@ final class CameraViewController: UIViewController {
         
         cameraBottomView.switchButtonTapped
             .sink { [weak self] _ in
-                self?.input.send(.switchButtonTapped)
+                self?.cameraInput.send(.switchButtonTapped)
             }
             .store(in: &cancellables)
         
@@ -132,16 +135,31 @@ final class CameraViewController: UIViewController {
     }
     
     private func bindOutput() {
-        let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
+        let cameraOutput = cameraViewModel.transform(input: cameraInput.eraseToAnyPublisher())
+        let photoOutput = photoViewModel.transform(input: photoInput.eraseToAnyPublisher())
         
-        output
+        cameraOutput
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 switch $0 {
                 case .cameraImage(let image):
+                    guard !isCaptured else { return }
                     let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
                     navigationController?.pushViewController(photoViewController, animated: true)
+                    isCaptured = true
+                }
+            }
+            .store(in: &cancellables)
+        
+        photoOutput
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                switch $0 {
+                case .didDeinit: self.isCaptured = false
+                case .failAlert: return
+                case .successAlert: return
                 }
             }
             .store(in: &cancellables)
