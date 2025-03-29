@@ -18,7 +18,6 @@ final class PhotoViewModel {
     enum Output {
         case successAlert
         case failAlert
-        case didDeinit
     }
     
     private var output = PassthroughSubject<Output, Never>()
@@ -31,7 +30,6 @@ final class PhotoViewModel {
                 switch input {
                 case .photoViewDidDeinit:
                     cameraManager.startSession()
-                    output.send(.didDeinit)
                 case .saveButtonTapped(let image):
                     saveImageToPhotoLibrary(image: image)
                 }

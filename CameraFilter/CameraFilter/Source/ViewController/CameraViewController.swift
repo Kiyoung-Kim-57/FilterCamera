@@ -14,8 +14,7 @@ final class CameraViewController: UIViewController {
     private let closeButton = UIButton()
     private var isCaptured: Bool = false
     
-    private let cameraInput = PassthroughSubject<CameraViewModel.Input, Never>()
-    private let photoInput = PassthroughSubject<PhotoViewModel.Input, Never>()
+    private let input = PassthroughSubject<CameraViewModel.Input, Never>()
     
     init(
         filterCollectionViewController: FilterCollectionViewController,
@@ -34,7 +33,7 @@ final class CameraViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         
@@ -47,8 +46,12 @@ final class CameraViewController: UIViewController {
         applyTransform()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        isCaptured = false
+    }
+    
     private func viewDidLoadInput() {
-        cameraInput.send(.viewDidLoad(cameraView))
+        input.send(.viewDidLoad(cameraView))
     }
     
     private func addViews() {
@@ -105,9 +108,9 @@ final class CameraViewController: UIViewController {
     
     private func bindInput() {
         cameraBottomView.cameraButtonTapped
-            .throttle(for: .seconds(2.0), scheduler: RunLoop.main, latest: false)
+            .throttle(for: .seconds(2.0), scheduler: DispatchQueue.main, latest: false)
             .sink { [weak self] _ in
-                self?.cameraInput.send(.cameraButtonTapped)
+                self?.input.send(.cameraButtonTapped)
             }
             .store(in: &cancellables)
         
@@ -121,7 +124,7 @@ final class CameraViewController: UIViewController {
         
         cameraBottomView.switchButtonTapped
             .sink { [weak self] _ in
-                self?.cameraInput.send(.switchButtonTapped)
+                self?.input.send(.switchButtonTapped)
             }
             .store(in: &cancellables)
         
@@ -135,10 +138,9 @@ final class CameraViewController: UIViewController {
     }
     
     private func bindOutput() {
-        let cameraOutput = cameraViewModel.transform(input: cameraInput.eraseToAnyPublisher())
-        let photoOutput = photoViewModel.transform(input: photoInput.eraseToAnyPublisher())
+        let output = cameraViewModel.transform(input: input.eraseToAnyPublisher())
         
-        cameraOutput
+        output
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
@@ -148,18 +150,6 @@ final class CameraViewController: UIViewController {
                     let photoViewController = PhotoViewController(image: image, photoViewModel: photoViewModel)
                     navigationController?.pushViewController(photoViewController, animated: true)
                     isCaptured = true
-                }
-            }
-            .store(in: &cancellables)
-        
-        photoOutput
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self else { return }
-                switch $0 {
-                case .didDeinit: self.isCaptured = false
-                case .failAlert: return
-                case .successAlert: return
                 }
             }
             .store(in: &cancellables)

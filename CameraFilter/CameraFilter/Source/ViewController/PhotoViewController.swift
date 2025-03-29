@@ -66,7 +66,6 @@ final class PhotoViewController: UIViewController {
                     self?.showAlertSavedSuccess()
                 case .failAlert:
                     self?.showAlertSaveFailed()
-                case .didDeinit: return
                 }
             }
             .store(in: &cancellables)
